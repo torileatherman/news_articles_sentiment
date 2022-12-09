@@ -1,4 +1,5 @@
-# news_articles_sentiment
+# Sentiment of News Articles
+## Authors: Eva Engel & Tori Leatherman
 Determining positive or negative sentiment of news articles.
 
 Our goal is to create a ML pipeline that culminates in a UI that users can input a URL for some news article and receive whether the article has an overall negative or positive sentiment. An idea, pending the successful completion of our initial goal, would be to develop this further, allowing the crawling of a news site and returning a list of all articles and their associated sentiment. We hope the completion of this project will empower people to be more in control of the media they intake on a daily basis, adapting to their personalized preferences.
