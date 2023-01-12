@@ -19,8 +19,8 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from sklearn.preprocessing import LabelEncoder
 
-BACKFILL = True
-ENCODER_EXIST = False
+BACKFILL = False
+ENCODER_EXIST = True
 
 # 1. Step: BACKFILL = True, ENCODER_EXIST = False
 # 2. Step: BACKFILL = False, ENCODER_EXIST = True
@@ -66,25 +66,26 @@ def preprocess_inputs(df):
     
     return df
 
-def tokenize_pad_sequences(df_strings: pd.DataFrame):
+def tokenize_pad_sequences(df: pd.DataFrame):
     '''
     This function tokenize the input text into sequnences of intergers and then
     pad each sequence to the same length
     ''' 
 
     # Text tokenization
-    tokenizer.fit_on_texts(df_strings['Headline'])
+    tokenizer.fit_on_texts(df['Headline'])
     
     # Transforms text to a sequence of integers
-    X = tokenizer.texts_to_sequences(df_strings['Headline'])
+    X = tokenizer.texts_to_sequences(df['Headline'])
 
     # Pad sequences to the same length
     X = pad_sequences(X, padding='post', maxlen=max_len)
 
     data = {"Headline": X.tolist()}
-    df = pd.DataFrame(data, columns=['Headline']) 
+    df_tokenized = pd.DataFrame(data, columns=['Headline']) 
 
-    save_encoder_to_hw(input_schema = df_strings['Headline'], output_schema = X)  
+    df['Headline'] = df_tokenized['Headline']
+    save_encoder_to_hw(input_schema = df['Headline'], output_schema = X)  
 
     return df
 
@@ -128,6 +129,7 @@ def load_process():
 
     df_string = preprocess_inputs(data)
     df = tokenize_pad_sequences(df_string)
+    print('STATIC DATA \n', df)
 
     return df
 
@@ -160,6 +162,8 @@ if __name__ == "__main__":
         # Load encoder from Hopsworks
         mr = project.get_model_registry()
         tokenizer = mr.get_model("headlines_sentiment_encoder", version=1)
+        model_dir = tokenizer.download()
+        tokenizer = joblib.load(model_dir + "/headlines_sentiment_encoder.pkl")
     else:
         # Initialise encoder
         tokenizer = Tokenizer(num_words=voc_size, lower=True, split=' ')
@@ -170,6 +174,7 @@ if __name__ == "__main__":
             name = 'headlines_sentiment_fg',
             primary_key =['Headline','Sentiment'], 
             version = 1)
+        
         headlines_sentiment_fg.insert(headlines_sentiment_df, write_options={"wait_for_job" : False})
 
     else:
@@ -178,5 +183,6 @@ if __name__ == "__main__":
             name = 'headlines_scraped_fg',
             primary_key =['Headline','Url'], 
             version = 1)
-            
+        print('SCRAPED-----------')
+        print(headlines_scraped_df)    
         headlines_scraped_fg.insert(headlines_scraped_df, write_options={"wait_for_job" : False})
