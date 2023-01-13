@@ -15,7 +15,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from sklearn.preprocessing import LabelEncoder
 
-BACKFILL = False
+BACKFILL = True
 ENCODER_EXIST = True
 
 # Login to huggingface huggingface-cli login
@@ -50,7 +50,7 @@ def preprocess_inputs(df):
     # drop missing rows
     df.dropna(axis=0, inplace=True)
     df.reset_index(drop=True, inplace=True)
-
+    df['Headline_string'] = df['Headline']
 
     df['Headline'] = df['Headline'].apply(lambda x: headline_to_sequence(x)) 
 
