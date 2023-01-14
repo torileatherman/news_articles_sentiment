@@ -12,6 +12,10 @@ We will explain each of these aspects in more detail in the following descriptio
 
 ### Data Source
 
+TODO - EVA
+#### Data-centric improvements
+TODO - EVA
+
 ### Exploratory Data Analysis
 
 
@@ -26,6 +30,12 @@ The steps to run the Feature Pipeline successfully are:
  3. Set BACKFILL = False, ENCODER_EXIST = True
 
 ### Training Pipeline
+
+#### Model 
+TODO - EVA
+#### Model-centric improvements
+TODO - EVA
+
 
 ### Batch Inference Pipeline
 The batch inference pipeline will first load the most recent model from Hopsworks. It will then load the most recent encoded batch data from HuggingFace, and predict the sentiment using the loaded model. After adding the predictions to the batch data, this will be pushed to HuggingFace to the batch_predictions dataset. This data will now be available for our HuggingFace app UI.
