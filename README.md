@@ -17,6 +17,12 @@ TODO - EVA
 TODO - EVA
 
 ### Exploratory Data Analysis
+Before preprocessing the data, we conducted an exploratory data analysis to understand the data from each individual source. The following images contain box plots of the headline length from the data sources containing financial data, covid data, and the two datasets from SEN.
+
+![image](https://user-images.githubusercontent.com/113507754/212493156-19a2477f-d793-4226-a985-3934e380a77e.png)
+![image](https://user-images.githubusercontent.com/113507754/212493136-34d38ef2-d555-469f-b0af-3397f27e012f.png)
+![image](https://user-images.githubusercontent.com/113507754/212493205-614ef54d-bf99-431d-8876-3180a8c2c86b.png)
+![image](https://user-images.githubusercontent.com/113507754/212493213-5e373312-2296-4d74-be1b-8d3ab47307a3.png)
 
 
 ### Feature Pipeline
