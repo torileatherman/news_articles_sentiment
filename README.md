@@ -19,11 +19,16 @@ TODO - EVA
 ### Exploratory Data Analysis
 Before preprocessing the data, we conducted an exploratory data analysis to understand the data from each individual source. The following images contain box plots of the headline length from the data sources containing financial data, covid data, and the two datasets from SEN.
 
-![image](https://user-images.githubusercontent.com/113507754/212493156-19a2477f-d793-4226-a985-3934e380a77e.png)
-![image](https://user-images.githubusercontent.com/113507754/212493136-34d38ef2-d555-469f-b0af-3397f27e012f.png)
-![image](https://user-images.githubusercontent.com/113507754/212493205-614ef54d-bf99-431d-8876-3180a8c2c86b.png)
-![image](https://user-images.githubusercontent.com/113507754/212493213-5e373312-2296-4d74-be1b-8d3ab47307a3.png)
+![image](https://user-images.githubusercontent.com/113507754/212493322-5120c7aa-a156-42b3-bf8c-41258d818289.png =100x20)
+![image](https://user-images.githubusercontent.com/113507754/212493330-fe05b823-8aed-42c0-8a02-59106d60b67b.png)
+![image](https://user-images.githubusercontent.com/113507754/212493338-ad418e9b-40c7-4b69-970f-93f5dc5a9b21.png)
+![image](https://user-images.githubusercontent.com/113507754/212493345-79b550df-dc06-4249-9b48-54552c95eff6.png)
 
+After concatenating the datasets together, we then graphed the distribution of sentiments. As seen, the data is relatively balanced, with the majority of sentiments Negative. This, of course, is in line with our intuition, since news headlines often skew towards negative sentiments. The balance of the data allows us to use accuracy as our primary metric of model evaluation, which will be seen in the Training Pipeline section. 
+
+![image](https://user-images.githubusercontent.com/113507754/212493829-6ae6f3aa-ebfa-474e-93b9-01b330d8e6e1.png)
+
+Finally, we created wordclouds 
 
 ### Feature Pipeline
 The feature pipeline is conducting three important functions: preprocessing initial training data from data sources, preprocessing batch data collecting using an API, and storing and updating the encoder used in the preprocessing steps. 
