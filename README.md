@@ -1,12 +1,12 @@
 # Sentiment of News Articles
 ## Authors: Eva Engel & Tori Leatherman
-Determining positive or negative sentiment of news articles.
 
 ### Description
-The focus of this project is creating an ML pipeline that predicts the sentiment of news articles based on their headlines. Our pipeline uses the following:
-1. Huggingface to store feature group data.
-2. Hopsworks to store the encoder and model.
-3. Huggingface to create interactive UI.
+The focus of this project is creating an ML pipeline that predicts the sentiment of and recommends news articles based on their headlines. Our system uses the following pipelines and workflow:
+1. Feature Pipeline to preprocess and store data in HuggingFace.
+2. Training Pipeline to train our model and store it in Hopsworks.
+3. Batch Inference Pipeline to predict sentiments on new batch data and store in HuggingFace.
+4. HuggingFace App for recommending articles based on sentiment and allowing users to manually label our batch data to append to our training data.
 
 We will explain each of these aspects in more detail in the following description.
 
