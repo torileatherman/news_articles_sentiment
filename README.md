@@ -14,9 +14,16 @@ We will explain each of these aspects in more detail in the following descriptio
 
 ### Exploratory Data Analysis
 
+
 ### Feature Pipeline
 The feature pipeline is conducting three important functions: preprocessing initial training data from data sources, preprocessing batch data collecting using an API, and storing and updating the encoder used in the preprocessing steps. 
+
 Using a parameter BACKFILL, if BACKFILL is set to True, we load and preprocess the initial training data from our various data sources. If BACKFILL is set to False, we call the API, NewsApiClient which scrapes the top headlines from a news source of our choice, in our case BBC. This is then also preprocessed. After either the training or batch data is preprocessed, it is pushed to HuggingFace to be stored. The other parameter of note is ENCODER_EXIST: if this is set to False, this will initialize the encoder and after preprocessing a dataset will be stored in the model registry on Hopsworks. If ENCODER_EXIST is set to true, then the encoder will be loaded from the model registry in Hopsworks, used for preprocessing and re-saved in Hopsworks with any updates experienced throught the preprocessing.
+
+The steps to run the Feature Pipeline successfully are:
+ 1. Login to HuggingFace with authorization token
+ 2. Set BACKFILL = True, ENCODER_EXIST = False
+ 3. Set BACKFILL = False, ENCODER_EXIST = True
 
 ### Training Pipeline
 
