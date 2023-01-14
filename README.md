@@ -18,16 +18,27 @@ TODO - EVA
 
 ### Exploratory Data Analysis
 Before preprocessing the data, we conducted an exploratory data analysis to understand the data from each individual source. The following images contain box plots of the headline length from the data sources containing financial data, covid data, and the two datasets from SEN.
+Financial Data Headlines           |  Covid Data Headlines
+:-------------------------:|:-------------------------:
+![image](https://user-images.githubusercontent.com/113507754/212494293-1fd83a33-2804-4297-a3ac-a9717a025abe.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212494298-835a956a-e52c-479f-8e96-4aaf8e2bc3c5.png)
 
-![image](https://user-images.githubusercontent.com/113507754/212493322-5120c7aa-a156-42b3-bf8c-41258d818289.png) | ![image](https://user-images.githubusercontent.com/113507754/212493330-fe05b823-8aed-42c0-8a02-59106d60b67b.png)
-![image](https://user-images.githubusercontent.com/113507754/212493338-ad418e9b-40c7-4b69-970f-93f5dc5a9b21.png)
-![image](https://user-images.githubusercontent.com/113507754/212493345-79b550df-dc06-4249-9b48-54552c95eff6.png)
+SEN R Data Headlines           |  SEN AMT Data Headlines
+:-------------------------:|:-------------------------:
+![image](https://user-images.githubusercontent.com/113507754/212494314-7a8b94b2-c3e9-4d47-ac52-9ee287800354.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212494318-bc14eb59-7c11-4bcc-9e73-56589c2a472e.png)
+
 
 After concatenating the datasets together, we then graphed the distribution of sentiments. As seen, the data is relatively balanced, with the majority of sentiments Negative. This, of course, is in line with our intuition, since news headlines often skew towards negative sentiments. The balance of the data allows us to use accuracy as our primary metric of model evaluation, which will be seen in the Training Pipeline section. 
 
 ![image](https://user-images.githubusercontent.com/113507754/212493829-6ae6f3aa-ebfa-474e-93b9-01b330d8e6e1.png)
 
-Finally, we created wordclouds 
+Finally, we created wordclouds representing the most frequent word associated with each of the sentiments: negative, positive and neutral.
+
+Negative             |  Positive             |  Neutral
+:-------------------------:|:-------------------------:-------------------------:|
+![image](https://user-images.githubusercontent.com/113507754/212494383-a4735059-065c-4e45-a2a8-0b6f46d2b458.png)
+  |  ![image](https://user-images.githubusercontent.com/113507754/212494386-2d4a7781-325d-49c0-815e-c985ed773615.png)
+  |  ![image](https://user-images.githubusercontent.com/113507754/212494393-5a8bba47-8612-4f15-96e6-12894f091321.png) 
+
 
 ### Feature Pipeline
 The feature pipeline is conducting three important functions: preprocessing initial training data from data sources, preprocessing batch data collecting using an API, and storing and updating the encoder used in the preprocessing steps. 
