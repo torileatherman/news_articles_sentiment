@@ -31,9 +31,9 @@ After concatenating the datasets together, we then graphed the distribution of s
 
 ![image](https://user-images.githubusercontent.com/113507754/212493829-6ae6f3aa-ebfa-474e-93b9-01b330d8e6e1.png)
 
-Finally, we created wordclouds representing the most frequent word associated with each of the sentiments: negative, positive and neutral.
+Finally, we created wordclouds representing the most frequent word associated with each of the sentiments: positive, negative and neutral.
 
-Negative             |  Positive             |  Neutral
+Positive             |  Negative             |  Neutral
 :-------------------------:|:-------------------------:|:-------------------------:|
 ![image](https://user-images.githubusercontent.com/113507754/212494383-a4735059-065c-4e45-a2a8-0b6f46d2b458.png) |  ![image](https://user-images.githubusercontent.com/113507754/212494386-2d4a7781-325d-49c0-815e-c985ed773615.png) |  ![image](https://user-images.githubusercontent.com/113507754/212494393-5a8bba47-8612-4f15-96e6-12894f091321.png) 
 
