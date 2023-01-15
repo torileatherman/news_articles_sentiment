@@ -85,9 +85,7 @@ We make use of Wandb to monitor the accuracy of our training epochs and obtain t
 
 Validation Accuracy           |  Accuracy
 :-------------------------:|:-------------------------:
-![image](https://user-images.githubusercontent.com/113507754/212552413-feda08ad-99f9-4c1e-b54d-bd6f41c9fdaf.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212554647-f560210f-1821-4a0a-91eb-d17b2152778a.png)
-
-
+![image](https://user-images.githubusercontent.com/113507754/212554647-f560210f-1821-4a0a-91eb-d17b2152778a.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212554872-e6fcc770-595d-4f08-ab8a-732e05296df4.png)
 
 
 ### Model-centric improvements
