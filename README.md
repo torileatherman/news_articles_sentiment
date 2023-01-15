@@ -49,7 +49,7 @@ The steps to run the Feature Pipeline successfully are:
  2. Set BACKFILL = True, ENCODER_EXIST = False
  3. Set BACKFILL = False, ENCODER_EXIST = True
  
- #### Preprocessing
+#### Preprocessing
 We define four functions to perform preprocessing, and two functions to be utilized depending on the parameter BACKFILL as mentioned above. The first function defined, preprocess_inputs() receives the dataframe, and outputs a cleaned dataframe. The function drops any NA values and resets the indices, and creates a duplicate column 'Headline_string' which allows us to encode the column 'Headline' for our model. We then encode the column 'Sentiment' using LabelEncoder(). Additionally, we utilize a function, headline_to_sequence(), which receives a the column 'Headline' as a string, and outputs text that that has removed unusual characters, converted each letter to lowercase, tokenized and stemmed each word, and removed any stopwords using nltk.stopwords.
 
 We then pass the dataframe through our function, tokenize_pad_sequences() which receives a dataframe, tokenizes the input text into sequences of integers, and pads each sequence to the same length. It will then return the processed dataframe. Within this function, after tokenizing the 'Headline', a function save_encoder_to_hw is called. This function first checks if there is an encoder already stored in Hopsworks, and if not will create the model and upload the recent version based on the encoding for the 'Headline' column.
@@ -73,12 +73,5 @@ As mentioned in the Training Pipeline section, for every input, our model output
 The HuggingFace app created as an interactive UI can be found here: https://huggingface.co/spaces/torileatherman/news_headline_sentiment 
 
 The UI has two tabs the user can interact with: 
-1. The first tab is designed so the user can select if they would like to be recommended Positive, Negative, or Neutral headlines. We will then provide recent headlines that are categorized with the correct sentiment. 
-2. The second tab is designed to allow users to manually label headlines from our recent batch. It will provide a recent news headline and our predicted sentiment; the user can then add their manual sentiment assessment. This will update to our training data and improve our model.
-
-The backend of the app functions in the following way. 
-
-As noted in the Batch Inference Pipeline, there are recent headlines and associated sentiment predictions stored in the batch_predictions dataset. This dataset will be loaded by the app for the interactive UI.
-
-
-
+1. The first tab is designed so the user can select if they would like to be recommended Positive, Negative, or Neutral headlines. Using our batch data stored in HuggingFace, we will then provide recent headlines that are categorized with the correct sentiment. 
+2. The second tab is designed to allow users to manually label headlines from our recent batch. It will provide a recent news headline and our predicted sentiment; the user can then add their manual sentiment assessment. This labeled headline will be appended to our training data and re-saved in the HuggingFace dataset.
