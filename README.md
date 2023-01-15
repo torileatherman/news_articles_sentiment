@@ -76,12 +76,12 @@ The basic work-flow of a Long Short Term Memory Network is similar to the work-f
 BiDirectional LSTM -¶
 Using bidirectional will run our inputs in two ways, one from past to future and one from future to past and what differs this approach from unidirectional is that in the LSTM that runs backwards we preserve information from the future and using the two hidden states combined we are able in any point in time to preserve information from both past and future.
 
-After the two bidirectional LSTM layers, we added a Pooling Layer that decreases sensitivity to features, thereby creating more generalised data for better test results. This is followed by several combinations of Dense and Dropout Layers that end with an output layer with the softmax activiation function and size 3 for the labels positive, negative and neutral. 
+After the two bidirectional LSTM layers, we added a Pooling Layer that decreases sensitivity to features, thereby creating more generalised data for better test results. This is followed by several combinations of Dense and Dropout Layers that end with an output layer with the softmax activiation function, and size 3 for the labels positive, negative and neutral. 
 
 
 #### Model training
-During training, we focused on the accurarcy of the predicitions since the training data set is balanced. Since our classes are mutually exclusive we utilise sparse_categorical_crossentropy as a loss function (one can use categorical crossentropy when one sample can have multiple classes or labels are soft probabilities). We used the adam optimizer and  included EarlyStopping to stop at the epoch where val_accuracy does not improve significantly.
-We make use of Wandb to monitor the accuracy of our training epochs and obtain the following reports for  20 epochs and a batch size of 256: 
+During training, we focused on the accuracy of the predicitions since the training data set is balanced. Since our classes are mutually exclusive we utilise sparse_categorical_crossentropy as a loss function (one can use categorical crossentropy when one sample can have multiple classes or labels are soft probabilities). We used the adam optimizer and  included EarlyStopping to stop at the epoch where val_accuracy does not improve significantly.
+We make use of Wandb to monitor the accuracy of our training epochs and obtain the following reports for 20 epochs and a batch size of 256: 
 
 
 ### Model-centric improvements
@@ -89,7 +89,7 @@ TODO - EVA
 
 
 ## Batch Inference Pipeline
-The batch inference pipeline will first load the most recent model from Hopsworks. It will then load the most recent encoded batch data from HuggingFace, and predict the sentiment using the loaded model. After adding the predictions to the batch data, this will be pushed to HuggingFace to the batch_predictions dataset. This data will now be available for our HuggingFace app UI.
+The batch inference pipeline will first load the most recent model from Hopsworks. It will then load the most recent encoded batch data from HuggingFace, and predict the sentiment using the loaded model. After adding the predictions to the batch data, the data will be sorted based on the confidence of the prediction. This data will then be pushed to HuggingFace to the batch_predictions dataset, and will be available for our HuggingFace app UI.
 
 As mentioned in the Training Pipeline section, for every input, our model outputs a vector of three: the probability that the input is each of the sentiment values. In order to categorize the predictions definitively into one class, we use the argmax() function to take the index of the maximum value of this vector as the final prediction of our input. We then calculate the normalized confidence of each prediction in a new column 'Confidence' which we append to the batch data. This allows us to sort the batch_data depending on the confidence of the prediction, so we show headlines which the highest confidence. Thus after adding the 'Prediction' and 'Confidence' columns to our batch dataset, we upload this to our HuggingFace to be stored as the sentiment analysis batch predictions.
 
