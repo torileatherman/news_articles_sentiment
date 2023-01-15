@@ -81,11 +81,12 @@ After the two bidirectional LSTM layers, we added a Pooling Layer that decreases
 
 #### Model training
 During training, we focused on the accuracy of the predicitions since the training data set is balanced. Since our classes are mutually exclusive we utilise sparse_categorical_crossentropy as a loss function (one can use categorical crossentropy when one sample can have multiple classes or labels are soft probabilities). We used the adam optimizer and  included EarlyStopping to stop at the epoch where val_accuracy does not improve significantly.
-We make use of Wandb to monitor the accuracy of our training epochs and obtain the following reports for 20 epochs and a batch size of 256: 
-
+We make use of Wandb to monitor the accuracy of our training epochs and obtain the following reports for 20 epochs, with early stopping and a batch size of 256: 
+![image](https://user-images.githubusercontent.com/113507754/212552413-feda08ad-99f9-4c1e-b54d-bd6f41c9fdaf.png)
 
 ### Model-centric improvements
-TODO - EVA
+As we can see from the diagrams included above, our model appears to be overfitting. This can be seen from the from the validation accuracy diagram which shows that after 3 epochs the validation accuracy reaches a maximum value and continues to decrease after that. To mitigate the effects of overfitting we tune the learning rate. Our first model has the default learning rate of 0.01. User a keras tuner, we perform a parameter search over the values [0.01, 0.001, 0.0001] with the objective of maximizing the validation accuracy. The optimal learning rate was identified as 0.001, which we retrained our model with. The diagrams obtained from Wandb for our training epochs can be found below: 
+
 
 
 ## Batch Inference Pipeline
