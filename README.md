@@ -11,10 +11,10 @@ The focus of this project is creating an ML pipeline that predicts the sentiment
 We will explain each of these aspects in more detail in the following description.
 
 ### Data Source
+We initally identified two data sources via Kaggle to use, one containing [Covid-19 News headlines](https://www.kaggle.com/code/sameer1502/covid-19-news-sentiment-analysis/notebook), and the other containing [Financial News headlines](https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-financial-news). Both these datasets also contain the associated sentiments of each headline. 
 
-TODO - EVA
 #### Data-centric improvements
-TODO - EVA
+When conducting our exploratory data analysis we noticed that only the Financial dataset contained neutral values along with positive and negative; whereas, the Covid dataset only contained positive and negative. Thus, we wanted to supplement the neutral data to enhance our model. In our search for additional data, we came across an research paper titled [Sentiment analysis of Entities in News headline](https://www.sciencedirect.com/science/article/pii/S1877050921018755). This paper consisted of presenting a novel publicly available human-labelled dataset of news headlines. As this was precisely what we were searching for, we requested access of the SEN R and SEN AMT datasets, which are the english sets for Researchers (R) and Amazon Mechanical Turk (AMT) services respectively. After gaining access we added these datasets to our training data, and as you will see in the below Exploratory Data Analysis section, they contributed to how balanced our training data became.
 
 ### Exploratory Data Analysis
 Before preprocessing the data, we conducted an exploratory data analysis to understand the data from each individual source. The following images contain box plots of the headline length from the data sources containing financial data, covid data, and the two datasets from SEN.
