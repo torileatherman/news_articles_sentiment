@@ -22,12 +22,18 @@ ENCODER_EXIST = True
 # 1. Step: BACKFILL = True, ENCODER_EXIST = False
 # 2. Step: BACKFILL = False, ENCODER_EXIST = True
 
-# parameter initialization -  arbitrarily choosen
+# Parameter initialization -  arbitrarily chosen
 voc_size = 5000 
 max_len = 60
 
-def headline_to_sequence(headline):
-    ''' Convert headline text into a sequence of words '''
+def headline_to_sequence(headline: str) -> str:
+    ''' 
+    This function converts headline text into a cleaned text that has been stemmed and stopwords removed
+
+    :param headline: headline text from dataframe
+
+    :return text: cleaned and processed headline text
+    '''
     ps = PorterStemmer()
 
     text = re.sub(r'[^a-zA-Z0-9]',' ', headline)
@@ -44,7 +50,15 @@ def headline_to_sequence(headline):
    
     return text
 
-def preprocess_inputs(df):
+def preprocess_inputs(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    This function takes the inputed dataframe, drops any NA values, applies the headline_to_sequence
+    function to the Headline column, and encodes the label of the Sentiment column. Returns dataframe
+
+    :param df: unprocessed dataframe
+
+    :return df: preprocessed dataframe
+    '''
     df = df.copy()
 
     # drop missing rows
@@ -63,10 +77,15 @@ def preprocess_inputs(df):
     print('The data set is preprocessed.')
     return df
 
-def tokenize_pad_sequences(df: pd.DataFrame):
+def tokenize_pad_sequences(df: pd.DataFrame) -> pd.DataFrame:
     '''
-    This function tokenize the input text into sequnences of intergers and then
-    pad each sequence to the same length
+    This function tokenizes the input text into sequences of integers and then
+    pad each sequence to the same length.
+
+    :param df: preprocessed dataframe 
+    :param max_len: length chosen for padding
+
+    :return df: tokenized dataframe
     ''' 
 
     # Text tokenization
@@ -87,7 +106,14 @@ def tokenize_pad_sequences(df: pd.DataFrame):
 
     return df
 
-def save_encoder_to_hw(input_schema, output_schema):
+def save_encoder_to_hw(input_schema: Schema, output_schema: Schema) -> None:
+    '''
+    This function creates a model registry and model schema in Hopsworks,
+    and saves the encoder to it.
+
+    :param input_schema: input schema for the encoder model registry
+    :param output_schema: output schema for the encoder model registry
+    '''
 
     mr = project.get_model_registry()
 
@@ -108,7 +134,13 @@ def save_encoder_to_hw(input_schema, output_schema):
     )
     headlines_sentiment_encoder.save(model_dir)
 
-def load_process():
+def load_process() -> pd.DataFrame:
+    '''
+    This function reads the the training data from four sources, applies the preprocess_inputs and
+    the tokenize_pad_sequences functions and returns a completely preprocessed dataframe.
+
+    :return df: preprocessed dataframe ready for upload
+    '''
 
     # Define the relative path to the data
     file_dir = os.path.dirname(__file__)   
@@ -134,7 +166,14 @@ def load_process():
 
     return df
 
-def scrape_process():
+def scrape_process() -> pd.DataFrame:
+    '''
+    This functions calls the API to get recent batch data from five news sources, applies the 
+    preprocess_inputs and the tokenize_pad_sequences functions and returns a completely preprocessed 
+    dataframe.
+
+    :return df: preprocessed dataframe ready for upload
+    '''
 
     def get_headlines_url():
         top_headlines = list()
@@ -174,6 +213,7 @@ if __name__ == "__main__":
         tokenizer = Tokenizer(num_words=voc_size, lower=True, split=' ')
 
     if BACKFILL == True:
+        # Read data and upload to huggingface
         headlines_sentiment_df = load_process()
         dataset = Dataset.from_pandas(headlines_sentiment_df)
         dataset.push_to_hub("eengel7/sentiment_analysis_training")
@@ -183,9 +223,8 @@ if __name__ == "__main__":
         dataset = load_dataset("eengel7/sentiment_analysis_batch", split='train')
         batch_old = pd.DataFrame(dataset)
 
-        # Scrape new headlines
+        # Scrape new headlines and check if they are in existing batch data
         headlines_scraped_df = scrape_process()
-
         batch_df = pd.concat([batch_old,headlines_scraped_df]).drop_duplicates(subset='Headline_string').reset_index(drop=True)
 
         # Upload new batch data set to huggingface
