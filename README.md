@@ -67,10 +67,18 @@ TODO - EVA
 ### Batch Inference Pipeline
 The batch inference pipeline will first load the most recent model from Hopsworks. It will then load the most recent encoded batch data from HuggingFace, and predict the sentiment using the loaded model. After adding the predictions to the batch data, this will be pushed to HuggingFace to the batch_predictions dataset. This data will now be available for our HuggingFace app UI.
 
-As mentioned in the Training Pipeline section, for every input, our model outputs a vector of three: the probability that the input is each of the sentiment values. In order to categorize the predictions definitively into one class, we use the argmax() function to take the maximum value of this vector as the final prediction of our input. We then calculate the normalized confidence of each prediction in a new column 'Confidence' which we append to the batch data. This allows us to sort the batch_data depending on the confidence of the prediction, so we show headlines which the highest confidence. Thus after adding the 'Prediction' and 'Confidence' columns to our batch dataset, we upload this to our HuggingFace to be stored as the sentiment analysis batch predictions.
+As mentioned in the Training Pipeline section, for every input, our model outputs a vector of three: the probability that the input is each of the sentiment values. In order to categorize the predictions definitively into one class, we use the argmax() function to take the index of the maximum value of this vector as the final prediction of our input. We then calculate the normalized confidence of each prediction in a new column 'Confidence' which we append to the batch data. This allows us to sort the batch_data depending on the confidence of the prediction, so we show headlines which the highest confidence. Thus after adding the 'Prediction' and 'Confidence' columns to our batch dataset, we upload this to our HuggingFace to be stored as the sentiment analysis batch predictions.
 
 ### HuggingFace App
-The HuggingFace app created as an interactive UI can be found here: https://huggingface.co/spaces/torileatherman/news_headline_sentiment As noted in the Batch Inference Pipeline, there are recent headlines and associated sentiment predictions stored in the batch_predictions dataset. This dataset will be loaded by the app for the interactive UI.
+The HuggingFace app created as an interactive UI can be found here: https://huggingface.co/spaces/torileatherman/news_headline_sentiment 
 
-The first tab is designed so the user can select if they would like to be recommended Positive, Negative, or Neutral headlines. We will then provide recent headlines that are categorized with the correct sentiment. 
-The second tab is designed to allow users to manually label headlines from our recent batch. It will provide a recent news headline and our predicted sentiment; the user can then add their manual sentiment assessment. This will update to our training data and improve our model.
+The UI has two tabs the user can interact with: 
+1. The first tab is designed so the user can select if they would like to be recommended Positive, Negative, or Neutral headlines. We will then provide recent headlines that are categorized with the correct sentiment. 
+2. The second tab is designed to allow users to manually label headlines from our recent batch. It will provide a recent news headline and our predicted sentiment; the user can then add their manual sentiment assessment. This will update to our training data and improve our model.
+
+The backend of the app functions in the following way. 
+
+As noted in the Batch Inference Pipeline, there are recent headlines and associated sentiment predictions stored in the batch_predictions dataset. This dataset will be loaded by the app for the interactive UI.
+
+
+
