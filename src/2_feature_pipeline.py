@@ -5,7 +5,7 @@ import hopsworks
 import joblib
 import nltk  # natural language processing
 import pandas as pd
-from datasets import Dataset
+from datasets import Dataset, load_dataset
 from hsml.model_schema import ModelSchema
 from hsml.schema import Schema
 from keras.preprocessing.text import Tokenizer
@@ -15,7 +15,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from sklearn.preprocessing import LabelEncoder
 
-BACKFILL = True
+BACKFILL = False
 ENCODER_EXIST = True
 
 # Login to huggingface huggingface-cli login
@@ -135,9 +135,6 @@ def load_process():
     return df
 
 def scrape_process():
-    api = NewsApiClient(api_key = 'ce3df7e49a0848f7ac670cac34703cfa')  # TODO delete later
-    top_articles = api.get_top_headlines(sources='bbc-news') #sources='bbc-news'
-
 
     def get_headlines_url():
         top_headlines = list()
@@ -146,8 +143,15 @@ def scrape_process():
 
         return top_headlines
 
-    top_headlines = get_headlines_url()
-    data = pd.DataFrame(top_headlines, columns=['Headline','Url'])
+    api = NewsApiClient(api_key = 'ce3df7e49a0848f7ac670cac34703cfa') 
+    data = pd.DataFrame()
+
+    for source in ['business-insider', 'bbc-news', 'bloomberg', 'abc-news', 'cbs-news']:
+        top_articles = api.get_top_headlines(sources = source) 
+
+        top_headlines = get_headlines_url()
+        articles_one_source = pd.DataFrame(top_headlines, columns=['Headline','Url'])
+        data = pd.concat([data,articles_one_source]).drop_duplicates()
 
     df_string = preprocess_inputs(data)
     df = tokenize_pad_sequences(df_string)
@@ -175,6 +179,15 @@ if __name__ == "__main__":
         dataset.push_to_hub("eengel7/sentiment_analysis_training")
 
     else:
+        # Load stored batch data set
+        dataset = load_dataset("eengel7/sentiment_analysis_batch", split='train')
+        batch_old = pd.DataFrame(dataset)
+
+        # Scrape new headlines
         headlines_scraped_df = scrape_process()
-        dataset = Dataset.from_pandas(headlines_scraped_df)
+
+        batch_df = pd.concat([batch_old,headlines_scraped_df]).drop_duplicates(subset='Headline_string').reset_index(drop=True)
+
+        # Upload new batch data set to huggingface
+        dataset = Dataset.from_pandas(batch_df)
         dataset.push_to_hub("eengel7/sentiment_analysis_batch")
