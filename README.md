@@ -82,12 +82,21 @@ After the two bidirectional LSTM layers, we added a Pooling Layer that decreases
 #### Model training
 During training, we focused on the accuracy of the predicitions since the training data set is balanced. Since our classes are mutually exclusive we utilise sparse_categorical_crossentropy as a loss function (one can use categorical crossentropy when one sample can have multiple classes or labels are soft probabilities). We used the adam optimizer and  included EarlyStopping to stop at the epoch where val_accuracy does not improve significantly.
 We make use of Wandb to monitor the accuracy of our training epochs and obtain the following reports for 20 epochs, with early stopping and a batch size of 256: 
-![image](https://user-images.githubusercontent.com/113507754/212552413-feda08ad-99f9-4c1e-b54d-bd6f41c9fdaf.png)
+
+Validation Accuracy           |  Accuracy
+:-------------------------:|:-------------------------:
+![image](https://user-images.githubusercontent.com/113507754/212552413-feda08ad-99f9-4c1e-b54d-bd6f41c9fdaf.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212554647-f560210f-1821-4a0a-91eb-d17b2152778a.png)
+
+
+
 
 ### Model-centric improvements
 As we can see from the diagrams included above, our model appears to be overfitting. This can be seen from the from the validation accuracy diagram which shows that after 3 epochs the validation accuracy reaches a maximum value and continues to decrease after that. To mitigate the effects of overfitting we tune the learning rate. Our first model has the default learning rate of 0.01. User a keras tuner, we perform a parameter search over the values [0.01, 0.001, 0.0001] with the objective of maximizing the validation accuracy. The optimal learning rate was identified as 0.001, which we retrained our model with. The diagrams obtained from Wandb for our training epochs can be found below: 
+Validation Accuracy           |  Accuracy
+:-------------------------:|:-------------------------:
+![image](https://user-images.githubusercontent.com/113507754/212554488-2346512e-0e9e-4ac3-b11e-644c5dddb9e6.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212554624-e3538a43-91cf-4602-b7cf-bf053d8a8804.png)
 
-
+As seen in the above diagrams, at the end of the training epochs we have a higher score for both the validation accuracy and accuracy using the new learning rate.
 
 ## Batch Inference Pipeline
 The batch inference pipeline will first load the most recent model from Hopsworks. It will then load the most recent encoded batch data from HuggingFace, and predict the sentiment using the loaded model. After adding the predictions to the batch data, the data will be sorted based on the confidence of the prediction. This data will then be pushed to HuggingFace to the batch_predictions dataset, and will be available for our HuggingFace app UI.
