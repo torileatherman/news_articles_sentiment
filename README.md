@@ -58,10 +58,10 @@ We then pass the dataframe through our function, tokenize_pad_sequences() which 
 These four functions are used in tandem, and then called by either the load_process() function if BACKFILL == True, or the scrape_process if BACKFILL == False. Finally when running this file, the preprocessed training data or preprocessed batch data will be pushed to HuggingFace for storage.
 
 ## Training Pipeline
-In this pipeline, we load the preprocessed training data from huggingface. We then split the training data and train the model. At the end, we upload the model to Hopwsworks. 
+In this pipeline, we load the preprocessed training data from HuggingFace. We then split the training data and train the model. At the end, we upload the model to Hopsworks. 
 
 ### Model 
-For the recurrent neural network, we used the Keras library and create a sequential model.  We based the underlying structure of the model on the project [AG News Classification LSTM](https://www.kaggle.com/code/ishandutta/ag-news-classification-lstm) although they solved a different classification task.  The first embedding layer takes the embedded and padded data and transforms them into dense vectors of a fixed size (here 40-dim). Followed by this, we add two *bidirectional LSTM* layers.  
+For the recurrent neural network, we used the Keras library and created a sequential model.  We based the underlying structure of the model on the project [AG News Classification LSTM](https://www.kaggle.com/code/ishandutta/ag-news-classification-lstm) although they solved a different classification task.  The first embedding layer takes the embedded and padded data and transforms them into dense vectors of a fixed size (here 40-dim). Followed by this, we add two *bidirectional LSTM* layers.  
 
 #### Model architecture
 The first embedding layer takes the embedded and padded data and transforms them into dense vectors of a fixed size (here 40-dim). Followed by this, we add two *bidirectional LSTM* layers.  
