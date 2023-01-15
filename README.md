@@ -6,7 +6,7 @@ The focus of this project is creating an ML pipeline that predicts the sentiment
 1. Feature Pipeline to preprocess and store data in HuggingFace.
 2. Training Pipeline to train our model and store it in Hopsworks.
 3. Batch Inference Pipeline to predict sentiments on new batch data and store in HuggingFace.
-4. HuggingFace App for recommending articles based on sentiment and allowing users to manually label our batch data to append to our training data.
+4. HuggingFace App for recommending articles based on sentiment and allowing users to manually label our batch data to append to our training data. The HuggingFace interactive UI can be found here: https://huggingface.co/spaces/torileatherman/news_headline_sentiment 
 
 We will explain each of these aspects in more detail in the following description.
 
