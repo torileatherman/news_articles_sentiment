@@ -39,6 +39,7 @@ Positive             |  Negative             |  Neutral
 
 
 ### Feature Pipeline
+
 The feature pipeline is conducting three important functions: preprocessing initial training data from data sources, preprocessing batch data collecting using an API, and storing and updating the encoder used in the preprocessing steps. 
 
 Using a parameter BACKFILL, if BACKFILL is set to True, we load and preprocess the initial training data from our various data sources. If BACKFILL is set to False, we call the API, NewsApiClient which scrapes the top headlines from a news source of our choice, in our case BBC. This is then also preprocessed. After either the training or batch data is preprocessed, it is pushed to HuggingFace to be stored. The other parameter of note is ENCODER_EXIST: if this is set to False, this will initialize the encoder and after preprocessing a dataset will be stored in the model registry on Hopsworks. If ENCODER_EXIST is set to true, then the encoder will be loaded from the model registry in Hopsworks, used for preprocessing and re-saved in Hopsworks with any updates experienced throught the preprocessing.
@@ -47,6 +48,13 @@ The steps to run the Feature Pipeline successfully are:
  1. Login to HuggingFace with authorization token
  2. Set BACKFILL = True, ENCODER_EXIST = False
  3. Set BACKFILL = False, ENCODER_EXIST = True
+ 
+ #### Preprocessing
+We define four functions to perform preprocessing, and two functions to be utilized depending on the parameter BACKFILL as mentioned above. The first function defined, preprocess_inputs() receives the dataframe, and outputs a cleaned dataframe. The function drops any NA values and resets the indices, and creates a duplicate column 'Headline_string' which allows us to encode the column 'Headline' for our model. We then encode the column 'Sentiment' using LabelEncoder(). Additionally, we utilize a function, headline_to_sequence(), which receives a the column 'Headline' as a string, and outputs text that that has removed unusual characters, converted each letter to lowercase, tokenized and stemmed each word, and removed any stopwords using nltk.stopwords.
+
+We then pass the dataframe through our function, tokenize_pad_sequences() which receives a dataframe, tokenizes the input text into sequences of integers, and pads each sequence to the same length. It will then return the processed dataframe. Within this function, after tokenizing the 'Headline', a function save_encoder_to_hw is called. This function first checks if there is an encoder already stored in Hopsworks, and if not will create the model and upload the recent version based on the encoding for the 'Headline' column.
+
+These four functions are used in tandem, and then called by either the load_process() function if BACKFILL == True, or the scrape_process if BACKFILL == False. Finally when running this file, the preprocessed training data or preprocessed batch data will be pushed to HuggingFace for storage.
 
 ### Training Pipeline
 
@@ -58,6 +66,8 @@ TODO - EVA
 
 ### Batch Inference Pipeline
 The batch inference pipeline will first load the most recent model from Hopsworks. It will then load the most recent encoded batch data from HuggingFace, and predict the sentiment using the loaded model. After adding the predictions to the batch data, this will be pushed to HuggingFace to the batch_predictions dataset. This data will now be available for our HuggingFace app UI.
+
+As mentioned in the Training Pipeline section, for every input, our model outputs a vector of three: the probability that the input is each of the sentiment values. In order to categorize the predictions definitively into one class, we use the argmax() function to take the maximum value of this vector as the final prediction of our input. We then calculate the normalized confidence of each prediction in a new column 'Confidence' which we append to the batch data. This allows us to sort the batch_data depending on the confidence of the prediction, so we show headlines which the highest confidence. Thus after adding the 'Prediction' and 'Confidence' columns to our batch dataset, we upload this to our HuggingFace to be stored as the sentiment analysis batch predictions.
 
 ### HuggingFace App
 The HuggingFace app created as an interactive UI can be found here: https://huggingface.co/spaces/torileatherman/news_headline_sentiment As noted in the Batch Inference Pipeline, there are recent headlines and associated sentiment predictions stored in the batch_predictions dataset. This dataset will be loaded by the app for the interactive UI.
