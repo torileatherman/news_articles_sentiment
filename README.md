@@ -6,7 +6,7 @@ The focus of this project is creating an ML pipeline that predicts the sentiment
 1. Feature Pipeline to preprocess and store data in HuggingFace.
 2. Training Pipeline to train our model and store it in Hopsworks.
 3. Batch Inference Pipeline to predict sentiments on new batch data and store in HuggingFace.
-4. HuggingFace App for recommending articles based on sentiment and allowing users to manually label our batch data to append to our training data.
+4. HuggingFace App for recommending articles based on sentiment and allowing users to manually label our batch data to append to our training data. The HuggingFace interactive UI can be found here: https://huggingface.co/spaces/torileatherman/news_headline_sentiment 
 
 We will explain each of these aspects in more detail in the following description.
 
@@ -43,7 +43,7 @@ Positive             |  Negative             |  Neutral
 The feature pipeline is conducting three important functions: preprocessing initial training data from data sources, preprocessing batch data collected using an API, and storing and updating the encoder used in the preprocessing steps. 
 
 ### Structure of Pipeline
-There are two parameters, BACKFILL and ENCODER_EXIST, that control the flow of the pipeline. Using a parameter BACKFILL, if BACKFILL is set to True, we load and preprocess the initial training data from our various data sources. If BACKFILL is set to False, we call the API, NewsApiClient which scrapes the top headlines from news sources of our choice, in our case we used 5 different sources: Business Insider, BBC News, Bloomberg, ABC News, and CBS News. This is then also preprocessed. After either the training or batch data is preprocessed, it is pushed to HuggingFace to be stored. The other parameter of note is ENCODER_EXIST: if this is set to False, this will initialize the encoder and after preprocessing a dataset will be stored in the model registry on Hopsworks. If ENCODER_EXIST is set to true, then the encoder will be loaded from the model registry in Hopsworks, used for preprocessing and re-saved in Hopsworks with any updates experienced throught the preprocessing.
+There are two parameters, BACKFILL and ENCODER_EXIST, that control the flow of the pipeline. Using a parameter BACKFILL, if BACKFILL is set to True, we load and preprocess the initial training data from our various data sources. If BACKFILL is set to False, we call the API, NewsApiClient which scrapes the top headlines from news sources of our choice, in our case we used 5 different sources: Business Insider, BBC News, Bloomberg, ABC News, and CBS News. This is then also preprocessed. After either the training or batch data is preprocessed, it is pushed to HuggingFace to be stored. The other parameter of note is ENCODER_EXIST: if this is set to False, this will initialize the encoder and after preprocessing a dataset will be stored in the model registry on Hopsworks. If ENCODER_EXIST is set to true, then the encoder will be loaded from the model registry in Hopsworks, used for preprocessing and re-saved in Hopsworks with any updates experienced throughout the preprocessing.
 
 The steps to run the Feature Pipeline successfully are:
  1. Login to HuggingFace with authorization token
@@ -51,36 +51,41 @@ The steps to run the Feature Pipeline successfully are:
  3. Set BACKFILL = False, ENCODER_EXIST = True
  
 ### Preprocessing
-We define four functions to perform preprocessing, and two functions to be utilized depending on the parameter BACKFILL as mentioned above. The first function defined, preprocess_inputs() receives the dataframe, and outputs a cleaned dataframe. The function drops any NA values and resets the indices, and creates a duplicate column 'Headline_string' which allows us to encode the column 'Headline' for our model. We then encode the column 'Sentiment' using LabelEncoder(). Additionally, we utilize a function, headline_to_sequence(), which receives a the column 'Headline' as a string, and outputs text that that has removed unusual characters, converted each letter to lowercase, tokenized and stemmed each word, and removed any stopwords using nltk.stopwords.
+We define four functions to perform preprocessing, and two functions to be utilized depending on the parameter BACKFILL as mentioned above. The first function defined, preprocess_inputs() receives the dataframe, and outputs a cleaned dataframe. The function drops any NA values and resets the indices, and creates a duplicate column 'Headline_string' which allows us to encode the column 'Headline' for our model. We then encode the column 'Sentiment' using LabelEncoder(). Additionally, we utilize a function, headline_to_sequence(), which receives a the column 'Headline' as a string, and outputs text that has removed unusual characters, converted each letter to lowercase, tokenized and stemmed each word, and removed any stopwords using nltk.stopwords.
 
 We then pass the dataframe through our function, tokenize_pad_sequences() which receives a dataframe, tokenizes the input text into sequences of integers, and pads each sequence to the same length. It will then return the processed dataframe. Within this function, after tokenizing the 'Headline', a function save_encoder_to_hw is called. This function first checks if there is an encoder already stored in Hopsworks, and if not will create the model and upload the recent version based on the encoding for the 'Headline' column.
 
 These four functions are used in tandem, and then called by either the load_process() function if BACKFILL == True, or the scrape_process if BACKFILL == False. Finally when running this file, the preprocessed training data or preprocessed batch data will be pushed to HuggingFace for storage.
 
 ## Training Pipeline
-In this pipeline, we load the preprocessed training data from HuggingFace. We then split the training data and train the model. At the end, we upload the model to Hopsworks. 
+In this pipeline, we load the preprocessed training data from HuggingFace. In order to obtain classification probabilites for each label, we want the sequential model to have an output layer of size 3. Therefore, we create dummy variables for each sentiment. We then split the training data and train the model. At the end, we upload the model to Hopsworks. 
 
 ### Model 
-For the recurrent neural network, we used the Keras library and created a sequential model.  We based the underlying structure of the model on the project [AG News Classification LSTM](https://www.kaggle.com/code/ishandutta/ag-news-classification-lstm) although they solved a different classification task.  The first embedding layer takes the embedded and padded data and transforms them into dense vectors of a fixed size (here 40-dim). Followed by this, we add two *bidirectional LSTM* layers.  
+For the recurrent neural network, we used the Keras library and created a sequential model.  We based the underlying structure of the model on the project [AG News Classification LSTM](https://www.kaggle.com/code/ishandutta/ag-news-classification-lstm) although they solved a different classification task. 
 
 #### Model architecture
-The first embedding layer takes the embedded and padded data and transforms them into dense vectors of a fixed size (here 40-dim). Followed by this, we add two *bidirectional LSTM* layers.  
-LSTM
+The first embedding layer takes the embedded and padded data and transforms them into dense vectors of a fixed size (here 40-dim). Followed by this, we add two bidirectional LSTM layers.  
 
-A Long Short Term Memory Network(LSTM) addresses the problem of Vanishing and Exploding Gradients in a deep Recurrent Neural Network. An LSTM recurrent unit tries to “remember” all the past knowledge that the network is seen so far and to “forget” irrelevant data. This is done by introducing different activation function layers called “gates” for different purposes. Each LSTM recurrent unit also maintains a vector called the Internal Cell State which conceptually describes the information that was chosen to be retained by the previous LSTM recurrent unit. A Long Short Term Memory Network consists of four different gates for different purposes as described below:-
-    1. Forget Gate(f): It determines to what extent to forget the previous data.
-    2. Input Gate(i): It determines the extent of information to be written onto the Internal Cell State.
-    3. Input Modulation Gate(g): It is often considered as a sub-part of the input gate and many literatures on LSTM’s do not even mention it and assume it inside the Input gate. It is used to modulate the information that the Input gate will write onto the Internal State Cell by adding non-linearity to the information and making the information Zero-mean. This is done to reduce the learning time as Zero-mean input has faster convergence. Although this gate’s actions are less important than the others and is often treated as a finesse-providing concept, it is good practice to include this gate into the structure of the LSTM unit.
-    4. Output Gate(o): It determines what output(next Hidden State) to generate from the current Internal Cell State.
+**LSTM**
+
+A Long Short Term Memory Network(LSTM) addresses the problem of Vanishing and Exploding Gradients in a deep Recurrent Neural Network. An LSTM recurrent unit tries to “remember” all the past knowledge that the network is seen so far and to “forget” irrelevant data. This is done by introducing different activation function layers called “gates” for different purposes. Each LSTM recurrent unit also maintains a vector called the Internal Cell State which conceptually describes the information that was chosen to be retained by the previous LSTM recurrent unit. A Long Short Term Memory Network consists of four different gates for different purposes as described below:
+
+1. Forget Gate(f): It determines to what extent to forget the previous data.
+2. Input Gate(i): It determines the extent of information to be written onto the Internal Cell State.
+3. Input Modulation Gate(g): It is often considered as a sub-part of the input gate and many literatures on LSTM’s do not even mention it and assume it inside the Input gate. It is used to modulate the information that the Input gate will write onto the Internal State Cell by adding non-linearity to the information and making the information Zero-mean. This is done to reduce the learning time as Zero-mean input has faster convergence. Although this gate’s actions are less important than the others and is often treated as a finesse-providing concept, it is good practice to include this gate into the structure of the LSTM unit.
+
+4. Output Gate(o): It determines what output(next Hidden State) to generate from the current Internal Cell State.
 The basic work-flow of a Long Short Term Memory Network is similar to the work-flow of a Recurrent Neural Network with only difference being that the Internal Cell State is also passed forward along with the Hidden State.
-BiDirectional LSTM -¶
+
+**BiDirectional LSTM**
+
 Using bidirectional will run our inputs in two ways, one from past to future and one from future to past and what differs this approach from unidirectional is that in the LSTM that runs backwards we preserve information from the future and using the two hidden states combined we are able in any point in time to preserve information from both past and future.
 
 After the two bidirectional LSTM layers, we added a Pooling Layer that decreases sensitivity to features, thereby creating more generalised data for better test results. This is followed by several combinations of Dense and Dropout Layers that end with an output layer with the softmax activiation function, and size 3 for the labels positive, negative and neutral. 
 
 
 #### Model training
-During training, we focused on the accuracy of the predicitions since the training data set is balanced. Since our classes are mutually exclusive we utilise sparse_categorical_crossentropy as a loss function (one can use categorical crossentropy when one sample can have multiple classes or labels are soft probabilities). We used the adam optimizer and  included EarlyStopping to stop at the epoch where val_accuracy does not improve significantly.
+During training, we focused on the accuracy of the predicitions since the training data set is balanced. Since our classes are mutually exclusive we utilise categorical_crossentropy as a loss function. We used the adam optimizer and included EarlyStopping to stop at the epoch where val_accuracy does not improve significantly.
 We make use of Wandb to monitor the accuracy of our training epochs and obtain the following reports for 20 epochs, with early stopping and a batch size of 256: 
 
 Validation Accuracy           |  Accuracy
@@ -89,7 +94,7 @@ Validation Accuracy           |  Accuracy
 
 
 ### Model-centric improvements
-As we can see from the diagrams included above, our model appears to be overfitting. This can be seen from the from the validation accuracy diagram which shows that after 3 epochs the validation accuracy reaches a maximum value and continues to decrease after that. To mitigate the effects of overfitting we tune the learning rate. Our first model has the default learning rate of 0.01. User a keras tuner, we perform a parameter search over the values [0.01, 0.001, 0.0001] with the objective of maximizing the validation accuracy. The optimal learning rate was identified as 0.001, which we retrained our model with. The diagrams obtained from Wandb for our training epochs can be found below: 
+As we can see from the diagrams included above, our model appears to be overfitting. This can be seen from the validation accuracy diagram which shows that after 9 epochs the validation accuracy reaches a maximum value and continues to decrease after that. To mitigate the effects of overfitting we tune the learning rate. Our first model has the default learning rate of 0.01. User a keras tuner, we perform a parameter search over the values [0.01, 0.001, 0.0001] with the objective of maximizing the validation accuracy. The optimal learning rate was identified as 0.001, which we retrained our model with. The diagrams obtained from Wandb for our training epochs can be found below: 
 Validation Accuracy           |  Accuracy
 :-------------------------:|:-------------------------:
 ![image](https://user-images.githubusercontent.com/113507754/212554488-2346512e-0e9e-4ac3-b11e-644c5dddb9e6.png)  |  ![image](https://user-images.githubusercontent.com/113507754/212554624-e3538a43-91cf-4602-b7cf-bf053d8a8804.png)
